@@ -32,6 +32,46 @@ namespace HolidayMaker
                 Console.Write("\nVälj ett alternativ (0-6): ");
 
                 string val = Console.ReadLine();
+
+                switch (val)
+                {
+                    case "1":
+                        Console.WriteLine(" Val 1: Registrera/Välj kund");
+                        break;
+
+                        case "2":
+                        Console.WriteLine(" Val 2: Sök efter lediga rum");
+                        break;
+
+                        case "3":
+                        Console.WriteLine("Val 3: Skapa en bokning");
+                        break;
+
+                        case "4":
+                        Console.WriteLine(" Val 4: Visa kundens bokningar");
+                        break;
+
+                        case "5":
+                        Console.WriteLine(" Val 5: Ändra antal personer i en bokning");
+                        break;
+
+                        case "6":
+                        Console.WriteLine(" Val 6: Avboka");
+                        break;
+
+                    case "0":
+                        running = false;
+                        Console.WriteLine(" Val 0: Avsluta");
+                        Console.WriteLine("Avslutar Programmet...");
+                        break;
+
+                        //if we input something other than the listed options
+                        default: Console.WriteLine("Ogiltigt val, försök igen.");
+                        break;
+                        
+
+                        
+                }
             }
         }
     }
