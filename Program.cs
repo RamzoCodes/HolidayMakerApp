@@ -17,6 +17,8 @@ namespace HolidayMaker
 
             //if the program is still running
 
+            BookingService service = new BookingService();
+
             // Keeps the menu running until we exit it (false).
             bool running = true; 
             while(running)
@@ -37,6 +39,7 @@ namespace HolidayMaker
                 {
                     case "1":
                         Console.WriteLine(" Val 1: Registrera/Välj kund");
+                        service.HandleCostumer();
                         break;
 
                         case "2":
