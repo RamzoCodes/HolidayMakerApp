@@ -26,7 +26,7 @@ namespace HolidayMaker
             }
             else if (choice == "2")
             {
-                Console.WriteLine("Registrera ny kund");
+                RegisterCostumer();
             }
             else
             {
@@ -80,12 +80,67 @@ namespace HolidayMaker
                             }
                             else
                             {
-                                Console.WriteLine("Felaktig inmatning. Du måste skriva en siffra.");
+                                Console.WriteLine("Felaktig inmatning. ingen kund med det ID:t hittades..");
                             }
                         }
                     }
+                }
+                else
+                {
+                    Console.WriteLine("Felaktig inmatning. Du måste skriva en siffra");
+                }
+            }
+        }
+                    // Method to register a new costumer into the database
+                    public void RegisterCostumer()
+        {
+            Console.WriteLine("Registrera ny kund");
+
+            Console.Write("Förnamn: ");
+            string firstName = Console.ReadLine();
+
+            Console.Write("Efternamn: ");
+            string lastName = Console.ReadLine();
+
+            Console.Write("Telefonnummer: ");
+            string phoneNumber = Console.ReadLine();
+
+            Console.Write("Email: ");
+            string email = Console.ReadLine();
+
+            //Error message if fist and/or last name is left empty.
+            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+            {
+                Console.WriteLine("Förnamn och efternamn måste fyllas i.");
+                return;
+
+            }
+            using (MySqlConnection conn = db.GetConnection())
+            {
+                conn.Open();
+                //INSERT query which also pulls the new ID which was created
+                string sql = @"INSERT INTO Costumers (first_name, last_name, phone_number, email) 
+                VALUES (@firstName, @lastName, @phone, @email); 
+                SELECT LAST_INSERT_ID();";
+
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@firstName", firstName);
+                    cmd.Parameters.AddWithValue("@lastName", lastName);
+                    cmd.Parameters.AddWithValue("@phone", phoneNumber);
+                    cmd.Parameters.AddWithValue("@email", email);
+
+                    //ExecuteScalar runs the command and returns the new ID
+                    long newId = Convert.ToInt64(cmd.ExecuteScalar());
+
+                    //Sets the new costumer as "Active"
+                    ActiveCostumerId = newId;
+                    ActiveCostumerName = $"{firstName} {lastName}";
+
+                    Console.WriteLine($"Kunden {ActiveCostumerName} har registrerats och valts. (Kund-ID: {ActiveCostumerId})");
                 }
             }
         }
     }
 }
+        
