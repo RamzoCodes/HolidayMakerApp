@@ -45,6 +45,7 @@ namespace HolidayMaker
 
                     case "2":
                         Console.WriteLine(" Val 2: Sök efter lediga rum");
+                        service.SearchRooms();
                         break;
 
                         case "3":

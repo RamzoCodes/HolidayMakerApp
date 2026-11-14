@@ -91,8 +91,8 @@ namespace HolidayMaker
                 }
             }
         }
-                    // Method to register a new costumer into the database
-                    public void RegisterCostumer()
+        // Method to register a new costumer into the database
+        public void RegisterCostumer()
         {
             Console.WriteLine("Registrera ny kund");
 
@@ -139,6 +139,43 @@ namespace HolidayMaker
 
                     Console.WriteLine($"Kunden {ActiveCostumerName} har registrerats och valts. (Kund-ID: {ActiveCostumerId})");
                 }
+            }
+        }
+
+        //Method which searches for avaliable rooms based on city, dates and capacity.
+        public void SearchRooms()
+        {
+            Console.WriteLine("Sök efter lediga rum");
+
+            Console.Write("Vilken ort vill du välja?: ");
+            string city = Console.ReadLine();
+
+            Console.Write("Ange antal personer: ");
+            if (!int.TryParse(Console.ReadLine(), out int guests))
+            {
+                Console.WriteLine("Felaktig inmatning. Antal personer måste vara en siffra.");
+                return;
+
+            }
+            Console.Write("Incheckningsdatum (ÅÅÅÅ-MM-DD): ");
+            if (!DateTime.TryParse(Console.ReadLine(), out DateTime checkInDate))
+            {
+                Console.WriteLine("Felaktigt datumformat. Vänligen använd ÅÅÅ-MM-DD");
+                return;
+            }
+
+             Console.Write("utcheckningsdatum (ÅÅÅÅ-MM-DD): ");
+            if (!DateTime.TryParse(Console.ReadLine(), out DateTime checkOutDate))
+            {
+                Console.WriteLine("Felaktigt datumformat. Vänligen använd ÅÅÅ-MM-DD");
+                return;
+            }
+
+            //Error message in case the check-out date is on the same day or prior to check-in date.
+            if (checkOutDate <= checkInDate)
+            {
+                Console.WriteLine("Utcheckningsdatumet måste vara minst en dag efter incheckningen.");
+                return;
             }
         }
     }
