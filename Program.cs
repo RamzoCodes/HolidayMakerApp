@@ -65,6 +65,7 @@ namespace HolidayMaker
 
                         case "6":
                         Console.WriteLine(" Val 6: Avboka");
+                        service.CancelBooking();
                         break;
 
                     case "0":

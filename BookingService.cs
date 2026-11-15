@@ -461,6 +461,37 @@ namespace HolidayMaker
                 }
             }
         }
+
+        //Deletes a specific booking belonging to active costumer.
+        public void CancelBooking()
+        {
+            Console.WriteLine("Avboka en reservation");
+
+            if (ActiveCostumerId == 0)
+            {
+                Console.WriteLine("Ingen kund är vald. Vänligen välj eller registrera en kund i menyval 1 först.");
+                return;
+            }
+
+            Console.Write("Ange det Boknings-ID du vill avboka: ");
+
+            if (!long.TryParse(Console.ReadLine(), out long bookingId))
+            {
+                Console.WriteLine("Felaktig inmatning. Boknings-ID:n måste vara en siffra.");
+                return;
+            }
+
+            //Warning question to prevent accidental deletion.
+            Console.Write($"Är du säker på att du vill radera bokning #{bookingId}? ( (J)a / (N)ej )");
+            string confirmation = Console.ReadLine().ToLower();
+
+            if (confirmation != "j")
+            {
+                Console.WriteLine("Avbokningen är avbruten.");
+                return;
+            }
+
+        }
     }
 }
         
