@@ -150,10 +150,10 @@ namespace HolidayMaker
             Console.Write("Vilken ort vill du välja?: ");
             string city = Console.ReadLine();
 
-            Console.Write("Ange antal personer: ");
+            Console.Write("Ange antal gäster: ");
             if (!int.TryParse(Console.ReadLine(), out int guests))
             {
-                Console.WriteLine("Felaktig inmatning. Antal personer måste vara en siffra.");
+                Console.WriteLine("Felaktig inmatning. Antal gäster måste vara en siffra.");
                 return;
 
             }
@@ -249,10 +249,10 @@ namespace HolidayMaker
                 return;
             }
 
-            Console.Write("Ange antal personer: ");
+            Console.Write("Ange antal gäster: ");
             if (!int.TryParse(Console.ReadLine(), out int guests))
             {
-                Console.WriteLine("Felaktig inmatning. Antal personer måste vara en siffra.");
+                Console.WriteLine("Felaktig inmatning. Antal gäster måste vara en siffra.");
                 return;
             }
 
@@ -401,6 +401,34 @@ namespace HolidayMaker
                         }
                     }
                 }
+            }
+        }
+
+        //allows user to update guest count on one of their existing bookings.
+        public void UpdateBookingGuests()
+        {
+            Console.WriteLine("Ändra antal gäster i en bokning");
+
+            if (ActiveCostumerId == 0)
+            {
+                Console.WriteLine("Ingen kund är vald. Vänligen välj eller registrera en kund i menyval 1 först.");
+                return;
+            }
+
+            //ask for specific Booking ID to update
+            Console.Write("Ange det Boknings-ID du vill ändra: ");
+            if (!long.TryParse(Console.ReadLine(), out long bookingId))
+            {
+                Console.WriteLine("Felaktig inmatning. Boknings-ID;n måste vara en siffra.");
+                return;
+            }
+
+            //ask for new guest count
+            Console.Write("Ange det nya antalet gäster: ");
+            if (!int.TryParse(Console.ReadLine(), out int newGuestAmount))
+            {
+                Console.WriteLine("Felaktig inmatning. Antal gäster måste vara en siffra.");
+                return;
             }
         }
     }

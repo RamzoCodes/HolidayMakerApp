@@ -59,7 +59,7 @@ namespace HolidayMaker
                         break;
 
                         case "5":
-                        Console.WriteLine(" Val 5: Ändra antal personer i en bokning");
+                        Console.WriteLine(" Val 5: Ändra antal gäster i en bokning");
                         break;
 
                         case "6":
