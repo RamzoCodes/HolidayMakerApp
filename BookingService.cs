@@ -185,6 +185,7 @@ namespace HolidayMaker
             Console.Write("Måste restaurang finnas? ( (J)a / (N)ej )");
             string restaurantChoice = Console.ReadLine().ToLower();
 
+            //int.TryParse returns true if user entered a valid number, false if pressed enter.
             Console.Write("Max avstånd till strand i meter (Enter för att hoppa över): ");
             bool filterBeach = int.TryParse(Console.ReadLine(), out int maxBeach);
 
@@ -199,8 +200,9 @@ namespace HolidayMaker
             {
                 conn.Open();
 
+                //Query checks city, room capacity and date availability
                 string sql = @"
-                SELECT Hotels.name AS hotel_name, Hotels.city, Rooms.id AS room_id, Rooms.room_number, Rooms.max_capacity, Rooms.price_per_night
+                SELECT Hotels.name AS hotel_name, Hotels.city, Hotels.rating, Rooms.id AS room_id, Rooms.room_number, Rooms.max_capacity, Rooms.price_per_night
                 FROM Rooms 
                 INNER JOIN Hotels ON Rooms.hotels_id = Hotels.id
                 WHERE Hotels.city = @city
@@ -208,8 +210,20 @@ namespace HolidayMaker
                 AND NOT EXISTS (
                 SELECT 1 FROM Bookings
                 WHERE Bookings.room_id = Rooms.id
-                AND (Bookings.check_in_date < @checkOutDate AND Bookings.check_out_date > @checkInDate));";
+                AND (Bookings.check_in_date < @checkOutDate AND Bookings.check_out_date > @checkInDate))";
 
+                //adds optional filters to SQL query based on user input
+                if (poolChoice == "j") sql += " AND Hotels.has_pool = 1";
+                if (restaurantChoice == "j") sql += " AND Hotels.has_restaurant = 1";
+                if (filterBeach) sql += " AND Hotels.distance_beach <= @maxBeach";
+                if (filterCenter) sql += " AND Hotels.distance_center <= @maxCenter";
+
+                // Dynamically appends sorting
+                if (sortChoice == "1") sql += " ORDER BY Rooms.price_per_night ASC;";
+                else if (sortChoice == "2") sql += " ORDER BY Hotels.rating DESC;";
+                else sql += ";";
+
+                
                 //Creates the command to run SQL query
                 using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                 {
@@ -220,6 +234,10 @@ namespace HolidayMaker
                     //Format Datetime objects to strings that MySQL understands.
                     cmd.Parameters.AddWithValue("@checkInDate", checkInDate.ToString("yyyy-MM-dd"));
                     cmd.Parameters.AddWithValue("@checkOutDate", checkOutDate.ToString("yyyy-MM-dd"));
+
+                    //only add distance parameters if user actually entered a distance filter
+                    if (filterBeach) cmd.Parameters.AddWithValue("@maxBeach", maxBeach);
+                    if (filterCenter) cmd.Parameters.AddWithValue("@maxCenter", maxCenter);
 
                     //reader reads the results row by row
                     using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -234,7 +252,7 @@ namespace HolidayMaker
                         {
                             foundRooms = true;
 
-                            Console.WriteLine($"Rum-ID: {reader["room_id"]} | Hotell: {reader["hotel_name"]} | Rum: {reader["room_number"]} | Max gäster: {reader["max_capacity"]} | Pris: {reader["price_per_night"]} kr/natt");
+                            Console.WriteLine($"Rum-ID: {reader["room_id"]} | Hotell: {reader["hotel_name"]} ({reader["city"]}) | Omdöme: {reader["rating"]}/5 | Rum: {reader["room_number"]} | Max gäster: {reader["max_capacity"]} | Pris: {reader["price_per_night"]} kr/natt");
                         }
                         if (!foundRooms)
                         {
@@ -388,7 +406,7 @@ namespace HolidayMaker
             {
                 conn.Open();
 
-                //Selects all bookings tied to active costumer.
+                //Selects all bookings tied to active costumer, joining Rooms and Hotels to display hotel name and room number
                 string sql = @"
                 SELECT Bookings.id, Hotels.name AS hotel_name, Rooms.room_number, Bookings.room_id, Bookings.check_in_date, Bookings.check_out_date, Bookings.guests_amount, Bookings.total_price
                 FROM Bookings
@@ -454,7 +472,7 @@ namespace HolidayMaker
             {
                 conn.Open();
 
-                //UPDATE query. WHERE prevents updating other costumers bookings.
+                //UPDATE query with INNER JOIN to verify costumer ownership and ensure max_capacity isnt exceeded. 
                 string sql = @"
                 UPDATE Bookings
                 INNER JOIN Rooms ON Bookings.room_id = Rooms.id
