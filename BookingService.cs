@@ -319,6 +319,37 @@ namespace HolidayMaker
                     Console.WriteLine("Bokningen misslyckades. Antingen existerar rummet inte, är för litet eller upptagen under dessa datum.");
                     return;
                 }
+
+                // Calculates the total price
+                int totalPrice = pricePerNight * totalNights;
+
+                //Query to insert new booking and retrieve auto-generated ID
+                string insertSql = @"
+                INSERT INTO Bookings (costumer_id, room_id, check_in_date, check_out_date, guests_amount, total_price)
+                VALUES (@costumerId, @roomId, @checkInDate, @checkOutDate, @guests, @totalPrice);
+                SELECT LAST_INSERT_ID();";
+
+                //Execute insert command using parameterized queries for security
+                using (MySqlCommand insertCmd = new MySqlCommand(insertSql, conn))
+                {
+                    insertCmd.Parameters.AddWithValue("@costumerId", ActiveCostumerId);
+                    insertCmd.Parameters.AddWithValue("@roomId", roomId);
+                    insertCmd.Parameters.AddWithValue("@checkInDate", checkInDate.ToString("yyyy-MM-dd"));
+                    insertCmd.Parameters.AddWithValue("@checkOutDate", checkOutDate.ToString("yyyy-MM-dd"));
+                    insertCmd.Parameters.AddWithValue("@guests", guests);
+                    insertCmd.Parameters.AddWithValue("@totalPrice", totalPrice);
+
+                    //runs the query and returns new booking ID
+                    long bookingId = Convert.ToInt64(insertCmd.ExecuteScalar());
+
+                    //prints booking receipt.
+                    Console.WriteLine("Bokningsbekräftelse");
+                    Console.WriteLine($"Bokningsnummer: {bookingId}");
+                    Console.WriteLine($"kund: {ActiveCostumerName}");
+                    Console.WriteLine($"Rum-ID: {roomId}");
+                    Console.WriteLine($"Period: {checkInDate:yyyy-MM-dd} till {checkOutDate:yyyy-MM-dd} ({totalNights} nätter)");
+                    Console.WriteLine($"Totalpris: {totalPrice} kr");
+                }
             }
         }
     }
