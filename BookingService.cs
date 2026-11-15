@@ -151,7 +151,7 @@ namespace HolidayMaker
             string city = Console.ReadLine();
 
             Console.Write("Ange antal gäster: ");
-            if (!int.TryParse(Console.ReadLine(), out int guests))
+            if (!int.TryParse(Console.ReadLine(), out int guests) || guests <=0)
             {
                 Console.WriteLine("Felaktig inmatning. Antal gäster måste vara en siffra.");
                 return;
@@ -177,6 +177,23 @@ namespace HolidayMaker
                 Console.WriteLine("Utcheckningsdatumet måste vara minst en dag efter incheckningen.");
                 return;
             }
+
+            // Optional filters and sorting
+            Console.Write("Måste pool finnas? ( (J)a / (N)ej )");
+            string poolChoice = Console.ReadLine().ToLower();
+
+            Console.Write("Måste restaurang finnas? ( (J)a / (N)ej )");
+            string restaurantChoice = Console.ReadLine().ToLower();
+
+            Console.Write("Max avstånd till strand i meter (Enter för att hoppa över): ");
+            bool filterBeach = int.TryParse(Console.ReadLine(), out int maxBeach);
+
+            Console.Write("Max avstånd till centrum i meter (Enter för att hoppa över): ");
+            bool filterCenter = int.TryParse(Console.ReadLine(), out int maxCenter);
+
+            Console.Write("Sortera (1 = Lägst pris, 2 = Högst omdöme, Enter = Ingen): ");
+            string sortChoice = Console.ReadLine();
+
 
             using (MySqlConnection conn = db.GetConnection())
             {
@@ -250,7 +267,7 @@ namespace HolidayMaker
             }
 
             Console.Write("Ange antal gäster: ");
-            if (!int.TryParse(Console.ReadLine(), out int guests))
+            if (!int.TryParse(Console.ReadLine(), out int guests) || guests <=0) 
             {
                 Console.WriteLine("Felaktig inmatning. Antal gäster måste vara en siffra.");
                 return;
@@ -394,7 +411,7 @@ namespace HolidayMaker
                             DateTime checkIn = Convert.ToDateTime(reader["check_in_date"]);
                             DateTime checkOut = Convert.ToDateTime(reader["check_out_date"]);
 
-                            Console.WriteLine($"Boknings-ID: {reader["id"]} | Boende: {reader["hotel_name"]} | Rum: {reader["room_id"]} | Gäster: {reader["guests_amount"]} | Period: {checkIn:yyyy-MM-dd} -> {checkOut:yyyy-MM-dd} | Pris: {reader["total_price"]} kr");
+                            Console.WriteLine($"Boknings-ID: {reader["id"]} | Boende: {reader["hotel_name"]} | Rum: {reader["room_number"]} | ID: {reader["room_id"]} | Gäster: {reader["guests_amount"]} | Period: {checkIn:yyyy-MM-dd} -> {checkOut:yyyy-MM-dd} | Pris: {reader["total_price"]} kr");
                         }
                         //if no booking is found
                         if (!hasBookings)
