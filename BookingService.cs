@@ -373,9 +373,11 @@ namespace HolidayMaker
 
                 //Selects all bookings tied to active costumer.
                 string sql = @"
-                SELECT id, room_id, check_in_date, check_out_date, guests_amount, total_price
+                SELECT Bookings.id, Hotels.name AS hotel_name, Rooms.room_number, Bookings.room_id, Bookings.check_in_date, Bookings.check_out_date, Bookings.guests_amount, Bookings.total_price
                 FROM Bookings
-                WHERE costumer_id = @costumerId;";
+                INNER JOIN Rooms ON Bookings.room_id = Rooms.id
+                INNER JOIN Hotels ON Rooms.hotels_id = Hotels.id
+                WHERE Bookings.costumer_id = @costumerId;";
 
                 using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                 {
@@ -392,7 +394,7 @@ namespace HolidayMaker
                             DateTime checkIn = Convert.ToDateTime(reader["check_in_date"]);
                             DateTime checkOut = Convert.ToDateTime(reader["check_out_date"]);
 
-                            Console.WriteLine($"Boknings-ID: {reader["id"]} | Rum: {reader["room_id"]} | Period: {checkIn:yyyy-MM-dd} -> {checkOut:yyyy-MM-dd} | Pris: {reader["total_price"]} kr");
+                            Console.WriteLine($"Boknings-ID: {reader["id"]} | Boende: {reader["hotel_name"]} | Rum: {reader["room_id"]} | Gäster: {reader["guests_amount"]} | Period: {checkIn:yyyy-MM-dd} -> {checkOut:yyyy-MM-dd} | Pris: {reader["total_price"]} kr");
                         }
                         //if no booking is found
                         if (!hasBookings)
@@ -425,7 +427,7 @@ namespace HolidayMaker
 
             //ask for new guest count
             Console.Write("Ange det nya antalet gäster: ");
-            if (!int.TryParse(Console.ReadLine(), out int newGuestAmount))
+            if (!int.TryParse(Console.ReadLine(), out int newGuestAmount) || newGuestAmount <=0)
             {
                 Console.WriteLine("Felaktig inmatning. Antal gäster måste vara en siffra.");
                 return;
@@ -438,8 +440,10 @@ namespace HolidayMaker
                 //UPDATE query. WHERE prevents updating other costumers bookings.
                 string sql = @"
                 UPDATE Bookings
-                SET guests_amount = @newGuests
-                WHERE id = @bookingId AND costumer_id = @costumerId;";
+                INNER JOIN Rooms ON Bookings.room_id = Rooms.id
+                SET Bookings.guests_amount = @newGuests
+                WHERE Bookings.id = @bookingId AND Bookings.costumer_id = @costumerId
+                AND Rooms.max_capacity >= @newGuests;";
 
                 using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                 {
@@ -456,7 +460,7 @@ namespace HolidayMaker
                     }
                     else
                     {
-                        Console.WriteLine("Misslyckades. Hittade ingen bokning med ID:t för denna kund.");
+                        Console.WriteLine("Misslyckades. Hittade ingen bokning med ID:t för denna kund, eller så är rummet för litet.");
                     }
                 }
             }
