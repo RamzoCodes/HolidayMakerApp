@@ -55,6 +55,7 @@ namespace HolidayMaker
 
                         case "4":
                         Console.WriteLine(" Val 4: Visa kundens bokningar");
+                        service.ShowCostumerBookings();
                         break;
 
                         case "5":

@@ -263,7 +263,7 @@ namespace HolidayMaker
                 return;
             }
 
-             Console.Write("Ange utcheckningsdatum (ÅÅÅÅ-MM-DD): ");
+            Console.Write("Ange utcheckningsdatum (ÅÅÅÅ-MM-DD): ");
             if (!DateTime.TryParse(Console.ReadLine(), out DateTime checkOutDate))
             {
                 Console.WriteLine("Felaktigt datumformat. Vänligen använd ÅÅÅÅ-MM-DD.");
@@ -351,6 +351,22 @@ namespace HolidayMaker
                     Console.WriteLine($"Totalpris: {totalPrice} kr");
                 }
             }
+        }
+
+        //fetches and displays bookings for active costumer.
+        public void ShowCostumerBookings()
+        {
+            Console.WriteLine("Visa kundens bokningar");
+
+            //makes sure costumer is selected.
+            if (ActiveCostumerId == 0)
+            {
+                Console.WriteLine("Ingen kund är vald. Vänligen välj en kund i menyn.");
+                return;
+            }
+
+            Console.WriteLine($"Bokningar för: {ActiveCostumerName} (Kund-ID: {ActiveCostumerId})");
+
         }
     }
 }
