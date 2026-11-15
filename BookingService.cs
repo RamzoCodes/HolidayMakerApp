@@ -367,6 +367,41 @@ namespace HolidayMaker
 
             Console.WriteLine($"Bokningar för: {ActiveCostumerName} (Kund-ID: {ActiveCostumerId})");
 
+            using (MySqlConnection conn = db.GetConnection())
+            {
+                conn.Open();
+
+                //Selects all bookings tied to active costumer.
+                string sql = @"
+                SELECT id, room_id, check_in_date, check_out_date, guests_amount, total_price
+                FROM Bookings
+                WHERE costumer_id = @costumerId;";
+
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@costumerId", ActiveCostumerId);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        bool hasBookings = false;
+
+                        //prints all found bookings
+                        while (reader.Read())
+                        {
+                            hasBookings = true;
+                            DateTime checkIn = Convert.ToDateTime(reader["check_in_date"]);
+                            DateTime checkOut = Convert.ToDateTime(reader["check_out_date"]);
+
+                            Console.WriteLine($"Boknings-ID: {reader["id"]} | Rum: {reader["room_id"]} | Period: {checkIn:yyyy-MM-dd} -> {checkOut:yyyy-MM-dd} | Pris: {reader["total_price"]} kr");
+                        }
+                        //if no booking is found
+                        if (!hasBookings)
+                        {
+                            Console.WriteLine("Kunden har inga registrerade bokningar.");
+                        }
+                    }
+                }
+            }
         }
     }
 }
