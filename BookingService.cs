@@ -177,6 +177,55 @@ namespace HolidayMaker
                 Console.WriteLine("Utcheckningsdatumet måste vara minst en dag efter incheckningen.");
                 return;
             }
+
+            using (MySqlConnection conn = db.GetConnection())
+            {
+                conn.Open();
+
+                string sql = @"
+                SELECT Hotels.name AS hotel_name, Hotels.city, Rooms.id AS room_id, Rooms.room_number, Rooms.max_capacity, Rooms.price_per_night
+                FROM Rooms 
+                INNER JOIN Hotels ON Rooms.hotels_id = Hotels.id
+                WHERE Hotels.city = @city
+                AND Rooms.max_capacity >= @guests
+                AND NOT EXISTS (
+                SELECT 1 FROM Bookings
+                WHERE Bookings.room_id = Rooms.id
+                AND (Bookings.check_in_date < @checkOutDate AND Bookings.check_out_date > @checkInDate));";
+                
+                //Creates the command to run SQL query
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                {
+                    //Parameterize user input to prevent SQL-injection
+                    cmd.Parameters.AddWithValue("@city", city);
+                    cmd.Parameters.AddWithValue("@guests", guests);
+
+                    //Format Datetime objects to strings that MySQL understands.
+                    cmd.Parameters.AddWithValue("@checkInDate", checkInDate.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@checkOutDate", checkOutDate.ToString("yyyy-MM-dd"));
+
+                    //reader reads the results row by row
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        Console.WriteLine($"Sökresultat för {guests} gäster i {city} ({checkInDate:yyyy-MM-dd} till {checkOutDate:yyyy-MM-dd})");
+
+                        
+                        //will be true if rooms have been found matching the search
+                        bool foundRooms = false;
+
+                        while (reader.Read())
+                        {
+                            foundRooms = true;
+
+                            Console.WriteLine($"Rum-ID: {reader["room_id"]} | Hotell: {reader["hotel_name"]} | Rum: {reader["room_number"]} | Max gäster: {reader["max_capacity"]} | Pris: {reader["price_per_night"]} kr/natt");
+                        }
+                        if (!foundRooms)
+                        {
+                            Console.WriteLine("Tyvärr matchade inga rum din sökning för dessa datum.");
+                        }
+                    }
+                }
+            }
         }
     }
 }
