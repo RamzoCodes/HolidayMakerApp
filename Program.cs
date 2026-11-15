@@ -50,6 +50,7 @@ namespace HolidayMaker
 
                         case "3":
                         Console.WriteLine("Val 3: Skapa en bokning");
+                        service.CreateBooking();
                         break;
 
                         case "4":

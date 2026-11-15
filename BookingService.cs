@@ -164,7 +164,7 @@ namespace HolidayMaker
                 return;
             }
 
-             Console.Write("utcheckningsdatum (ÅÅÅÅ-MM-DD): ");
+            Console.Write("utcheckningsdatum (ÅÅÅÅ-MM-DD): ");
             if (!DateTime.TryParse(Console.ReadLine(), out DateTime checkOutDate))
             {
                 Console.WriteLine("Felaktigt datumformat. Vänligen använd ÅÅÅ-MM-DD");
@@ -192,7 +192,7 @@ namespace HolidayMaker
                 SELECT 1 FROM Bookings
                 WHERE Bookings.room_id = Rooms.id
                 AND (Bookings.check_in_date < @checkOutDate AND Bookings.check_out_date > @checkInDate));";
-                
+
                 //Creates the command to run SQL query
                 using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                 {
@@ -209,7 +209,7 @@ namespace HolidayMaker
                     {
                         Console.WriteLine($"Sökresultat för {guests} gäster i {city} ({checkInDate:yyyy-MM-dd} till {checkOutDate:yyyy-MM-dd})");
 
-                        
+
                         //will be true if rooms have been found matching the search
                         bool foundRooms = false;
 
@@ -226,6 +226,20 @@ namespace HolidayMaker
                     }
                 }
             }
+        }
+        //Creates new booking for active customer
+        public void CreateBooking()
+        {
+            Console.WriteLine("Skapa en bokning");
+
+            //checks if costumer is selected, error message is given if not.
+            if (ActiveCostumerId == 0)
+            {
+                Console.WriteLine("Ingen kund är vald. Vänligen välj eller registrera en kund i menyval 1 först.");
+                return;
+            }
+
+            Console.WriteLine($"Bokar för kund: {ActiveCostumerName}");
         }
     }
 }
