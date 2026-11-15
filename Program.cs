@@ -60,6 +60,7 @@ namespace HolidayMaker
 
                         case "5":
                         Console.WriteLine(" Val 5: Ändra antal gäster i en bokning");
+                        service.UpdateBookingGuests();
                         break;
 
                         case "6":

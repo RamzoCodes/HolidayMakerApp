@@ -430,6 +430,36 @@ namespace HolidayMaker
                 Console.WriteLine("Felaktig inmatning. Antal gäster måste vara en siffra.");
                 return;
             }
+
+            using (MySqlConnection conn = db.GetConnection())
+            {
+                conn.Open();
+
+                //UPDATE query. WHERE prevents updating other costumers bookings.
+                string sql = @"
+                UPDATE Bookings
+                SET guests_amount = @newGuests
+                WHERE id = @bookingId AND costumer_id = @costumerId;";
+
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@newGuests", newGuestAmount);
+                    cmd.Parameters.AddWithValue("@bookingId", bookingId);
+                    cmd.Parameters.AddWithValue("@costumerId", ActiveCostumerId);
+
+                    //returns how many rows were updated in the database
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        Console.WriteLine($"Lyckades! Bokning #{bookingId} har nu uppdaterats till {newGuestAmount} gäster.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Misslyckades. Hittade ingen bokning med ID:t för denna kund.");
+                    }
+                }
+            }
         }
     }
 }
