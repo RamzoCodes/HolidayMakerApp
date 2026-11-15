@@ -240,6 +240,43 @@ namespace HolidayMaker
             }
 
             Console.WriteLine($"Bokar för kund: {ActiveCostumerName}");
+
+            //Below are different inputs being asked for such as room ID, amount of people, check-in and check-out.
+            Console.Write("Ange Rum-ID: ");
+            if (!long.TryParse(Console.ReadLine(), out long roomId))
+            {
+                Console.WriteLine("Felaktig inmatning. Rum-ID måste vara en siffra.");
+                return;
+            }
+
+            Console.Write("Ange antal personer: ");
+            if (!int.TryParse(Console.ReadLine(), out int guests))
+            {
+                Console.WriteLine("Felaktig inmatning. Antal personer måste vara en siffra.");
+                return;
+            }
+
+            Console.Write("Ange incheckningsdatum (ÅÅÅÅ-MM-DD): ");
+            if (!DateTime.TryParse(Console.ReadLine(), out DateTime checkInDate))
+            {
+                Console.WriteLine("Felaktigt datumformat. Vänligen använd ÅÅÅÅ-MM-DD.");
+                return;
+            }
+
+             Console.Write("Ange utcheckningsdatum (ÅÅÅÅ-MM-DD): ");
+            if (!DateTime.TryParse(Console.ReadLine(), out DateTime checkOutDate))
+            {
+                Console.WriteLine("Felaktigt datumformat. Vänligen använd ÅÅÅÅ-MM-DD.");
+                return;
+            }
+
+            if (checkOutDate <= checkInDate)
+            {
+                Console.WriteLine("Utcheckningsdatumet måste vara minst en dag efter incheckningsdatumet.");
+                return;
+            }
+
+            Console.WriteLine("Inmatning godkänt, redo för databaskontroll..");
         }
     }
 }
