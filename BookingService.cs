@@ -275,8 +275,51 @@ namespace HolidayMaker
                 Console.WriteLine("Utcheckningsdatumet måste vara minst en dag efter incheckningsdatumet.");
                 return;
             }
+            //Calculates the number of nights the costumer is staying
+            int totalNights = (checkOutDate - checkInDate).Days;
+            using (MySqlConnection conn = db.GetConnection())
+            {
+                conn.Open();
 
-            Console.WriteLine("Inmatning godkänt, redo för databaskontroll..");
+                //We ask the database for the room's price and capacity if it is free during the given dates.
+                string checkSql = @"
+                SELECT price_per_night, max_capacity
+                FROM Rooms
+                WHERE id = @roomId
+                AND max_capacity >= @guests
+                AND NOT EXISTS (
+                SELECT 1 FROM Bookings
+                WHERE room_id = @roomId
+                AND (check_in_date < @checkOutDate AND check_out_date > @checkInDate));";
+                int pricePerNight = 0;
+                bool isAvailable = false;
+
+                using (MySqlCommand checkCmd = new MySqlCommand(checkSql, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@roomId", roomId);
+                    checkCmd.Parameters.AddWithValue("@guests", guests);
+                    checkCmd.Parameters.AddWithValue("@checkInDate", checkInDate.ToString("yyyy-MM-dd"));
+                    checkCmd.Parameters.AddWithValue("@checkOutDate", checkOutDate.ToString("yyyy-MM-dd"));
+
+                    using (MySqlDataReader reader = checkCmd.ExecuteReader())
+                    {
+                        //if Read() is true, the room is both available and big enough
+                        if (reader.Read())
+                        {
+                            isAvailable = true;
+
+                            //grabs the price from the database and converts it to integer.
+                            pricePerNight = Convert.ToInt32(reader["price_per_night"]);
+                        }
+                    }
+                }
+                //If room isn't available for any of the reasons given below, the booking is aborted.
+                if (!isAvailable)
+                {
+                    Console.WriteLine("Bokningen misslyckades. Antingen existerar rummet inte, är för litet eller upptagen under dessa datum.");
+                    return;
+                }
+            }
         }
     }
 }
